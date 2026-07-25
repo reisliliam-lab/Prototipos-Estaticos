@@ -316,6 +316,7 @@ const assessmentCriteria = [
 ];
 
 const maturityLevels = ["Assistido", "Guiado", "Estruturado", "Autônomo", "Multiplicador"];
+const maxEvidenceFileSize = 2 * 1024 * 1024;
 const evidenceStore = loadEvidenceStore();
 
 let activeSquadKey = "cartoes";
@@ -344,6 +345,46 @@ function escapeHtml(value) {
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#039;");
+}
+
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    if (!file) {
+      resolve(null);
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => resolve({
+      fileName: file.name,
+      fileType: file.type || "application/octet-stream",
+      fileSize: file.size,
+      fileDataUrl: reader.result
+    });
+    reader.onerror = () => reject(new Error("Nao foi possivel ler o arquivo."));
+    reader.readAsDataURL(file);
+  });
+}
+
+function formatFileSize(size = 0) {
+  if (size < 1024) return `${size} B`;
+  if (size < 1024 * 1024) return `${(size / 1024).toFixed(1)} KB`;
+  return `${(size / (1024 * 1024)).toFixed(1)} MB`;
+}
+
+function evidenceRecordText(evidence, stageTitle) {
+  return [
+    `Etapa: ${stageTitle}`,
+    `Tipo: ${evidence.type || ""}`,
+    `Documento ou artefato: ${evidence.title || ""}`,
+    `Status: ${evidence.status || ""}`,
+    `Referencia: ${evidence.reference || ""}`,
+    `Arquivo: ${evidence.fileName || "Sem arquivo anexado"}`,
+    `Decisao apoiada: ${evidence.decision || ""}`,
+    "",
+    "Aprendizado evidenciado:",
+    evidence.summary || ""
+  ].join("\n");
 }
 
 function setView(viewName) {
@@ -601,6 +642,7 @@ function renderStageDetail() {
           <label>
             Arquivo
             <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.png,.jpg,.jpeg">
+            <span class="field-note">No protótipo, arquivos até 2 MB ficam disponíveis para download neste navegador.</span>
           </label>
           <label class="evidence-summary-field">
             Decisão que esta evidência apoia
@@ -632,17 +674,23 @@ function renderStageDetail() {
     renderAssessmentResult();
   });
 
-  qs("#evidenceForm").addEventListener("submit", (event) => {
+  qs("#evidenceForm").addEventListener("submit", async (event) => {
     event.preventDefault();
     const form = event.currentTarget;
     const file = form.elements.file.files[0];
+    if (file && file.size > maxEvidenceFileSize) {
+      showToast("Arquivo acima de 2 MB. Para o protótipo, use um arquivo menor ou registre um link.");
+      return;
+    }
+    const uploadedFile = await readFileAsDataUrl(file);
     const evidence = {
       type: form.elements.type.value,
       title: form.elements.title.value.trim(),
       reference: file ? file.name : form.elements.reference.value.trim(),
       status: form.elements.status.value,
       decision: form.elements.decision.value.trim(),
-      summary: form.elements.summary.value.trim()
+      summary: form.elements.summary.value.trim(),
+      ...(uploadedFile || {})
     };
 
     currentEvidenceBuckets()[selectedStageIndex].push(evidence);
@@ -661,6 +709,23 @@ function renderStageDetail() {
       renderHome();
       renderJourney();
       renderAssessmentResult();
+    });
+  });
+
+  qsa("[data-download-evidence]", qs("#stageDetail")).forEach((button) => {
+    button.addEventListener("click", () => {
+      const evidence = currentEvidenceBuckets()[selectedStageIndex][Number(button.dataset.downloadEvidence)];
+      const blob = new Blob([evidenceRecordText(evidence, stage.title)], { type: "text/plain;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      const safeTitle = (evidence.title || stage.title).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "evidencia";
+      link.href = url;
+      link.download = `${safeTitle}-registro.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast(`Registro de ${evidence.title} baixado.`);
     });
   });
 }
@@ -690,8 +755,13 @@ function renderEvidenceItems(evidences) {
           <p>${escapeHtml(evidence.summary)}</p>
           ${evidence.decision ? `<small>Decisão apoiada: ${escapeHtml(evidence.decision)}</small>` : ""}
           ${evidence.reference ? `<small>${escapeHtml(evidence.reference)}</small>` : ""}
+          ${evidence.fileName ? `<small>Arquivo anexado: ${escapeHtml(evidence.fileName)} (${formatFileSize(evidence.fileSize)})</small>` : ""}
         </div>
-        <button class="secondary-action" type="button" data-remove-evidence="${index}">Remover</button>
+        <div class="evidence-actions">
+          ${evidence.fileDataUrl ? `<a class="secondary-action" href="${escapeHtml(evidence.fileDataUrl)}" download="${escapeHtml(evidence.fileName || evidence.title)}">Baixar arquivo</a>` : ""}
+          <button class="secondary-action" type="button" data-download-evidence="${index}">Baixar registro</button>
+          <button class="secondary-action" type="button" data-remove-evidence="${index}">Remover</button>
+        </div>
       </article>
     `;
   }).join("");
