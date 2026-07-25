@@ -296,6 +296,61 @@ p {
   margin-bottom: 0;
 }
 
+.intro-guide {
+  display: grid;
+  grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.35fr);
+  gap: 16px;
+  align-items: stretch;
+  margin-bottom: 16px;
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--orange);
+  border-radius: 8px;
+  background: var(--surface);
+  padding: 16px;
+  box-shadow: var(--shadow);
+}
+
+.intro-copy h3 {
+  margin: 10px 0 6px;
+}
+
+.intro-copy p {
+  margin-bottom: 0;
+}
+
+.intro-steps {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.intro-steps button {
+  min-height: 96px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--subtle);
+  color: var(--ink);
+  padding: 12px;
+  text-align: left;
+}
+
+.intro-steps button:hover,
+.intro-steps button:focus-visible {
+  border-color: var(--orange);
+  background: var(--orange-soft);
+}
+
+.intro-steps strong,
+.intro-steps span {
+  display: block;
+}
+
+.intro-steps span {
+  margin-top: 6px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+
 .metric-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -943,6 +998,54 @@ p {
   font-weight: 700;
 }
 
+.guide-modal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(16, 24, 40, 0.46);
+  z-index: 20;
+}
+
+.guide-modal[hidden] {
+  display: none;
+}
+
+.guide-dialog {
+  width: min(760px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  padding: 20px;
+  box-shadow: 0 24px 70px rgba(16, 24, 40, 0.22);
+}
+
+.guide-dialog h2 {
+  margin: 10px 0 6px;
+}
+
+.guide-path {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  padding-left: 22px;
+  line-height: 1.48;
+}
+
+.guide-path li {
+  padding-left: 4px;
+}
+
+.guide-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
 @media (max-width: 1120px) {
   .metric-grid,
   .journey-grid,
@@ -955,7 +1058,8 @@ p {
   .community-layout,
   .planner-layout,
   .assistant-layout,
-  .assessment-layout {
+  .assessment-layout,
+  .intro-guide {
     grid-template-columns: 1fr;
   }
 }
@@ -995,6 +1099,7 @@ p {
   .stage-detail-grid,
   .evidence-layout,
   .evidence-guidance,
+  .intro-steps,
   .maturity-scale {
     grid-template-columns: 1fr;
   }

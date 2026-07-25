@@ -73,6 +73,7 @@
             <span class="sr-only">Buscar</span>
             <input id="globalSearch" type="search" placeholder="Buscar guias, templates e casos">
           </label>
+          <button class="secondary-action" type="button" id="openGuide">Guia rápido</button>
           <button class="primary-action" type="button" data-jump="assistant">Abrir IA</button>
         </div>
       </header>
@@ -86,6 +87,32 @@
           </div>
           <button class="secondary-action" type="button" data-jump="planner">Novo plano</button>
         </div>
+
+        <section class="intro-guide" aria-labelledby="introGuideTitle">
+          <div class="intro-copy">
+            <span class="badge">Comece aqui</span>
+            <h3 id="introGuideTitle">Objetivo da plataforma</h3>
+            <p>Padronizar e acelerar Product Discovery no Itaú, ajudando squads a tomar decisões com evidências, documentar aprendizados e evoluir maturidade com menos dependência operacional do CoE.</p>
+          </div>
+          <div class="intro-steps" aria-label="Passos principais de uso">
+            <button type="button" data-guide-jump="home">
+              <strong>1. Veja o status</strong>
+              <span>Acompanhe maturidade, Discovery ativo e recomendações.</span>
+            </button>
+            <button type="button" data-guide-jump="planner">
+              <strong>2. Planeje</strong>
+              <span>Transforme uma incerteza em plano, técnicas e entregáveis.</span>
+            </button>
+            <button type="button" data-guide-jump="journey">
+              <strong>3. Execute e evidencie</strong>
+              <span>Siga a jornada, registre documentos e fortaleça evidências.</span>
+            </button>
+            <button type="button" data-guide-jump="assessment">
+              <strong>4. Meça maturidade</strong>
+              <span>Use registros da jornada como insumo do Assessment.</span>
+            </button>
+          </div>
+        </section>
 
         <div class="metric-grid" id="homeMetrics"></div>
 
@@ -324,6 +351,31 @@
         </div>
       </section>
     </main>
+  </div>
+
+  <div class="guide-modal" id="guideModal" hidden>
+    <div class="guide-dialog" role="dialog" aria-modal="true" aria-labelledby="guideModalTitle">
+      <div class="panel-header">
+        <div>
+          <span class="badge">Guia rápido</span>
+          <h2 id="guideModalTitle">Como usar o Discovery Hub</h2>
+          <p>Use a plataforma como um sistema operacional de Discovery: planeje, execute, documente, revise e acompanhe maturidade.</p>
+        </div>
+        <button class="secondary-action" type="button" id="closeGuide">Fechar</button>
+      </div>
+      <ol class="guide-path">
+        <li><strong>Home:</strong> entenda o momento da squad e siga as recomendações.</li>
+        <li><strong>Planejar Discovery:</strong> defina iniciativa, incerteza, prazo, stakeholders e entregáveis.</li>
+        <li><strong>Discovery Guiado:</strong> avance etapa por etapa e registre as evidências esperadas.</li>
+        <li><strong>IA Discovery:</strong> revise problema, hipótese, roteiro, experimento e riscos.</li>
+        <li><strong>Assessment:</strong> acompanhe maturidade usando respostas da squad e documentação registrada.</li>
+        <li><strong>Executivo:</strong> leia adoção, eficiência e impacto para governança.</li>
+      </ol>
+      <div class="guide-actions">
+        <button class="primary-action" type="button" data-guide-jump="journey">Começar pela jornada</button>
+        <button class="secondary-action" type="button" data-guide-jump="assessment">Ver maturidade</button>
+      </div>
+    </div>
   </div>
 
   <script src="app.js"></script>
