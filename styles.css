@@ -244,6 +244,11 @@ p {
   border-color: var(--line-strong);
 }
 
+.secondary-action:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+}
+
 .filter-button.is-active {
   background: var(--blue);
   color: #fff;
@@ -464,6 +469,8 @@ p {
 }
 
 .stage-card {
+  display: grid;
+  align-content: start;
   min-height: 144px;
   padding: 14px;
   text-align: left;
@@ -489,14 +496,69 @@ p {
 }
 
 .stage-card p {
-  margin-bottom: 0;
+  margin-bottom: 12px;
   font-size: 0.92rem;
+}
+
+.stage-card-status {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  width: fit-content;
+  margin-top: auto;
+  border-radius: 999px;
+  background: var(--blue-soft);
+  color: var(--blue);
+  padding: 0 9px;
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.stage-evidence-count {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.stage-evidence-count.is-partial {
+  color: var(--orange);
+}
+
+.stage-evidence-count.is-strong {
+  color: var(--green);
+}
+
+.stage-card.is-done .stage-card-status {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.stage-card.is-current .stage-card-status {
+  background: var(--orange-soft);
+  color: var(--orange);
 }
 
 .stage-detail-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+  margin-bottom: 18px;
+}
+
+.evidence-guidance {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.evidence-guidance article {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--blue-soft);
+  padding: 14px;
 }
 
 .plain-list {
@@ -522,6 +584,7 @@ p {
 }
 
 .tool-panel label,
+.evidence-form label,
 .slider-row {
   display: grid;
   gap: 7px;
@@ -531,7 +594,10 @@ p {
 
 .tool-panel input,
 .tool-panel select,
-.tool-panel textarea {
+.tool-panel textarea,
+.evidence-form input,
+.evidence-form select,
+.evidence-form textarea {
   width: 100%;
   border: 1px solid var(--line);
   border-radius: 8px;
@@ -543,6 +609,141 @@ p {
 
 .tool-panel textarea {
   resize: vertical;
+}
+
+.evidence-section {
+  border-top: 1px solid var(--line);
+  padding-top: 18px;
+}
+
+.evidence-layout {
+  display: grid;
+  grid-template-columns: minmax(300px, 0.85fr) minmax(0, 1.15fr);
+  gap: 16px;
+}
+
+.evidence-form {
+  display: grid;
+  gap: 12px;
+  align-content: start;
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--subtle);
+}
+
+.evidence-summary-field {
+  grid-column: 1 / -1;
+}
+
+.evidence-list {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.evidence-item,
+.empty-state,
+.auto-signal,
+.documentation-summary {
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.evidence-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: start;
+  padding: 14px;
+}
+
+.evidence-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.quality-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  width: fit-content;
+  border-radius: 999px;
+  background: var(--subtle);
+  color: var(--muted);
+  padding: 0 10px;
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.quality-pill.is-partial {
+  background: var(--orange-soft);
+  color: var(--orange);
+}
+
+.quality-pill.is-strong {
+  background: var(--green-soft);
+  color: var(--green);
+}
+
+.evidence-item h3,
+.empty-state h3,
+.auto-signal h3,
+.documentation-summary h3 {
+  margin-top: 10px;
+}
+
+.evidence-item p,
+.empty-state p,
+.auto-signal p,
+.documentation-summary p {
+  margin-bottom: 6px;
+}
+
+.evidence-item small,
+.documentation-summary small {
+  display: block;
+  color: var(--muted);
+  font-weight: 700;
+  margin-top: 5px;
+}
+
+.empty-state {
+  padding: 16px;
+  min-height: 148px;
+}
+
+.auto-signal {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+}
+
+.auto-signal strong {
+  font-size: 1.4rem;
+}
+
+.documentation-summary {
+  padding: 14px;
+  margin-bottom: 16px;
+}
+
+.mini-progress {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #e5e9f0;
+  overflow: hidden;
+  margin: 8px 0;
+}
+
+.mini-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--orange);
 }
 
 .timeline {
@@ -772,6 +973,8 @@ p {
   }
 
   .stage-detail-grid,
+  .evidence-layout,
+  .evidence-guidance,
   .maturity-scale {
     grid-template-columns: 1fr;
   }
@@ -787,7 +990,8 @@ p {
 
   .compact-stage-list li,
   .timeline-item,
-  .bar-row {
+  .bar-row,
+  .evidence-item {
     grid-template-columns: 1fr;
   }
 

@@ -119,6 +119,172 @@ const stages = [
   }
 ];
 
+const stageEvidenceRequirements = [
+  {
+    expected: ["Problem Statement preenchido", "Discovery Brief com decisao esperada", "Indicador de impacto ou baseline"],
+    quality: ["Problema nao contem solucao embutida", "Cliente ou segmento esta explicito", "Ha metrica para avaliar relevancia"]
+  },
+  {
+    expected: ["Research Plan", "Roteiro de entrevista", "Sintese de clientes ou dados de jornada"],
+    quality: ["Amostra ou fonte esta descrita", "Perguntas reduzem vies", "Aprendizados separam fato de interpretacao"]
+  },
+  {
+    expected: ["Opportunity Canvas", "Opportunity Solution Tree", "Criterio de priorizacao"],
+    quality: ["Oportunidades derivam de evidencias", "Outcome esta conectado ao problema", "Priorizacao explicita trade-offs"]
+  },
+  {
+    expected: ["Hypothesis Canvas", "Risco principal mapeado", "Criterio de sucesso"],
+    quality: ["Hipotese tem cliente, comportamento e metrica", "Risco e falsificavel", "Criterio de decisao esta claro"]
+  },
+  {
+    expected: ["Experiment Canvas", "Desenho de amostra e periodo", "Plano de leitura de resultado"],
+    quality: ["Experimento testa o risco principal", "Custo e proporcional a incerteza", "Metrica evita vanity metric"]
+  },
+  {
+    expected: ["Evidence Log", "Discovery Report", "Resultados contra criterio de sucesso"],
+    quality: ["Resultado compara previsto e observado", "Limitacoes estao explicitas", "Aprendizado e acionavel"]
+  },
+  {
+    expected: ["Decision Record", "Racional baseado em evidencias", "Alinhamento com stakeholders"],
+    quality: ["Decisao tem go, pivot ou stop", "Trade-offs estao registrados", "Evidencias sustentam a recomendacao"]
+  },
+  {
+    expected: ["MVP Canvas", "Metricas de sucesso", "Riscos remanescentes e dependencias"],
+    quality: ["Escopo minimo deriva da decisao", "Metricas conectam Discovery e Delivery", "Riscos restantes tem plano"]
+  }
+];
+
+function createEvidenceBuckets(entries = {}) {
+  return stages.map((_, index) => entries[index] ? [...entries[index]] : []);
+}
+
+function defaultEvidenceStore() {
+  return {
+    cartoes: createEvidenceBuckets({
+      0: [
+        {
+          type: "Template preenchido",
+          title: "Problem Statement - onboarding PJ",
+          reference: "Problem Statement",
+          status: "Validada com stakeholder",
+          decision: "Priorizar investigacao da etapa documental antes de desenhar solucao",
+          summary: "Problema delimitado na etapa de validação documental, com impacto no abandono do cadastro."
+        }
+      ],
+      1: [
+        {
+          type: "Pesquisa com clientes",
+          title: "Roteiro e síntese de entrevistas",
+          reference: "Interview Script",
+          status: "Revisada pela squad",
+          decision: "Manter entrevistas abertas para separar causa real de suposicao",
+          summary: "Entrevistas indicaram dúvidas sobre documentação exigida e medo de envio incorreto."
+        }
+      ],
+      3: [
+        {
+          type: "Hipótese documentada",
+          title: "Hypothesis Canvas - clareza documental",
+          reference: "Hypothesis Canvas",
+          status: "Validada com stakeholder",
+          decision: "Testar clareza documental com experimento antes do MVP",
+          summary: "Hipótese principal conecta clareza da etapa documental à redução de abandono."
+        }
+      ]
+    }),
+    credito: createEvidenceBuckets({
+      0: [
+        {
+          type: "Template preenchido",
+          title: "Discovery Brief - pré-aprovação",
+          reference: "Discovery Brief",
+          status: "Revisada pela squad",
+          decision: "Investigar experiencia de pre-aprovacao antes de evoluir regra de limite",
+          summary: "Decisão de Discovery vinculada à experiência de pré-aprovação de limite."
+        }
+      ],
+      1: [
+        {
+          type: "Plano de pesquisa",
+          title: "Research Plan - clientes PF",
+          reference: "Research Plan",
+          status: "Rascunho",
+          decision: "Definir amostra antes de iniciar entrevistas",
+          summary: "Plano separa clientes por renda, canal de entrada e comportamento de crédito."
+        }
+      ]
+    }),
+    investimentos: createEvidenceBuckets({
+      0: [
+        {
+          type: "Template preenchido",
+          title: "Problem Statement - novos investidores",
+          reference: "Problem Statement",
+          status: "Validada com stakeholder",
+          decision: "Investigar confianca antes de propor mudancas na carteira recomendada",
+          summary: "Problema descreve baixa confiança na primeira carteira recomendada."
+        }
+      ],
+      2: [
+        {
+          type: "Árvore de oportunidades",
+          title: "Opportunity Solution Tree - carteira recomendada",
+          reference: "Opportunity Solution Tree",
+          status: "Validada com stakeholder",
+          decision: "Priorizar oportunidades ligadas a confianca e compreensao de risco",
+          summary: "Oportunidades priorizadas por confiança, compreensão de risco e clareza de recomendação."
+        }
+      ],
+      4: [
+        {
+          type: "Experimento",
+          title: "Teste de mensagem",
+          reference: "Experiment Canvas",
+          status: "Validada com stakeholder",
+          decision: "Escolher mensagem do MVP com base no teste",
+          summary: "Experimento compara variações de mensagem antes do desenvolvimento do MVP."
+        }
+      ],
+      5: [
+        {
+          type: "Resultado",
+          title: "Discovery Report - validação",
+          reference: "Discovery Report",
+          status: "Revisada pela squad",
+          decision: "Consolidar recomendacao para planejamento do MVP",
+          summary: "Resultados consolidados para sustentar decisão sobre a proposta de valor."
+        }
+      ]
+    })
+  };
+}
+
+function loadEvidenceStore() {
+  const fallback = defaultEvidenceStore();
+  if (typeof localStorage === "undefined") return fallback;
+
+  try {
+    const stored = JSON.parse(localStorage.getItem("discoveryHubEvidence") || "null");
+    if (!stored) return fallback;
+
+    Object.keys(fallback).forEach((squadKey) => {
+      if (!Array.isArray(stored[squadKey])) stored[squadKey] = fallback[squadKey];
+      stored[squadKey] = stages.map((_, index) => {
+        if (!Array.isArray(stored[squadKey][index])) return fallback[squadKey][index] || [];
+
+        return stored[squadKey][index].map((evidence, evidenceIndex) => ({
+          ...(fallback[squadKey][index]?.[evidenceIndex] || {}),
+          ...evidence
+        }));
+      });
+    });
+
+    return stored;
+  } catch {
+    return fallback;
+  }
+}
+
 const resources = [
   ["Guia", "Continuous Discovery", "Ritual semanal de aprendizado com clientes.", "Maturidade"],
   ["Guia", "Double Diamond", "Estrutura para divergir, convergir e decidir.", "Método"],
@@ -150,6 +316,7 @@ const assessmentCriteria = [
 ];
 
 const maturityLevels = ["Assistido", "Guiado", "Estruturado", "Autônomo", "Multiplicador"];
+const evidenceStore = loadEvidenceStore();
 
 let activeSquadKey = "cartoes";
 let selectedStageIndex = 3;
@@ -170,6 +337,15 @@ const viewTitles = {
 const qs = (selector, root = document) => root.querySelector(selector);
 const qsa = (selector, root = document) => [...root.querySelectorAll(selector)];
 
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function setView(viewName) {
   qsa(".view").forEach((view) => view.classList.toggle("is-active", view.id === viewName));
   qsa(".nav-item").forEach((item) => item.classList.toggle("is-active", item.dataset.view === viewName));
@@ -189,9 +365,86 @@ function currentSquad() {
   return squads[activeSquadKey];
 }
 
+function currentEvidenceBuckets() {
+  return evidenceStore[activeSquadKey];
+}
+
+function saveEvidenceStore() {
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("discoveryHubEvidence", JSON.stringify(evidenceStore));
+  }
+}
+
+function evidenceQuality(evidence) {
+  let points = 0;
+  if (evidence.title && evidence.type) points += 1;
+  if (evidence.reference) points += 1;
+  if ((evidence.summary || "").trim().length >= 60) points += 1;
+  if (evidence.decision) points += 1;
+  if (evidence.status === "Validada com stakeholder") points += 1;
+
+  const label = points >= 4 ? "Forte" : points >= 2 ? "Parcial" : "Fraca";
+  return { points, label };
+}
+
+function stageDocumentationStatus(stageIndex, squadKey = activeSquadKey) {
+  const evidences = evidenceStore[squadKey][stageIndex] || [];
+  const strongEvidenceCount = evidences.filter((evidence) => evidenceQuality(evidence).points >= 4).length;
+  const hasMinimumEvidence = evidences.length > 0;
+  const hasQualityEvidence = strongEvidenceCount > 0;
+
+  return {
+    evidenceCount: evidences.length,
+    strongEvidenceCount,
+    label: hasQualityEvidence ? "Evidencia forte" : hasMinimumEvidence ? "Evidencia parcial" : "Sem evidencia",
+    isComplete: hasQualityEvidence
+  };
+}
+
+function documentationStats(squadKey = activeSquadKey) {
+  const buckets = evidenceStore[squadKey];
+  const documentedStages = buckets.filter((items) => items.length > 0).length;
+  const evidenceCount = buckets.reduce((sum, items) => sum + items.length, 0);
+  const stageStatuses = stages.map((_, index) => stageDocumentationStatus(index, squadKey));
+  const completeStages = stageStatuses.filter((stage) => stage.isComplete).length;
+  const strongEvidenceCount = stageStatuses.reduce((sum, stage) => sum + stage.strongEvidenceCount, 0);
+  const missingStages = stages
+    .map((stage, index) => ({ title: stage.title, count: buckets[index].length }))
+    .filter((stage) => stage.count === 0)
+    .map((stage) => stage.title);
+  const partialStages = stages
+    .map((stage, index) => ({ title: stage.title, status: stageStatuses[index] }))
+    .filter((stage) => stage.status.evidenceCount > 0 && !stage.status.isComplete)
+    .map((stage) => stage.title);
+  const coverageRatio = documentedStages / stages.length;
+  const qualityRatio = completeStages / stages.length;
+  const weightedRatio = (coverageRatio * 0.6) + (qualityRatio * 0.4);
+  const score = evidenceCount === 0 ? 1 : Math.max(1, Math.ceil(weightedRatio * 5));
+
+  return {
+    documentedStages,
+    completeStages,
+    evidenceCount,
+    strongEvidenceCount,
+    missingStages,
+    partialStages,
+    score,
+    coverage: Math.round(coverageRatio * 100),
+    qualityCoverage: Math.round(qualityRatio * 100)
+  };
+}
+
 function renderHome() {
   const squad = currentSquad();
-  qs("#homeMetrics").innerHTML = squad.metrics.map(([label, value, note]) => `
+  const docStats = documentationStats();
+  const metrics = squad.metrics.map((metric) => {
+    if (metric[0] === "Evidências registradas") {
+      return ["Evidências registradas", String(docStats.evidenceCount), `${docStats.completeStages}/${stages.length} etapas com evidência forte`];
+    }
+    return metric;
+  });
+
+  qs("#homeMetrics").innerHTML = metrics.map(([label, value, note]) => `
     <article class="metric-card">
       <span>${label}</span>
       <strong>${value}</strong>
@@ -215,7 +468,14 @@ function renderHome() {
     `;
   }).join("");
 
-  qs("#recommendationList").innerHTML = squad.recommendations.map(([title, body]) => `
+  const documentationRecommendation = docStats.completeStages < stages.length
+    ? [["Fortalecer evidências da jornada", docStats.missingStages.length
+      ? `Documentar primeiro: ${docStats.missingStages.slice(0, 2).join(" e ")}.`
+      : `Revisar qualidade das evidências em: ${docStats.partialStages.slice(0, 2).join(" e ")}.`]]
+    : [];
+  const recommendations = [...documentationRecommendation, ...squad.recommendations];
+
+  qs("#recommendationList").innerHTML = recommendations.map(([title, body]) => `
     <article class="recommendation-item">
       <strong>${title}</strong>
       <p>${body}</p>
@@ -228,11 +488,17 @@ function renderJourney() {
   qs("#journeyGrid").innerHTML = stages.map((stage, index) => {
     const selected = index === selectedStageIndex ? "is-selected" : "";
     const done = index < squad.currentStage ? "is-done" : "";
+    const current = index === squad.currentStage ? "is-current" : "";
+    const statusText = index < squad.currentStage ? "Concluída" : index === squad.currentStage ? "Atual" : "Próxima";
+    const documentationStatus = stageDocumentationStatus(index);
+    const documentationClass = documentationStatus.isComplete ? "is-strong" : documentationStatus.evidenceCount ? "is-partial" : "";
     return `
-      <button class="stage-card ${selected} ${done}" type="button" data-stage="${index}">
+      <button class="stage-card ${selected} ${done} ${current}" type="button" data-stage="${index}">
         <span class="stage-index">${index + 1}</span>
         <strong>${stage.title}</strong>
         <p>${stage.summary}</p>
+        <span class="stage-card-status">${statusText}</span>
+        <span class="stage-evidence-count ${documentationClass}">${documentationStatus.evidenceCount} evidência${documentationStatus.evidenceCount === 1 ? "" : "s"} - ${documentationStatus.label}</span>
       </button>
     `;
   }).join("");
@@ -249,13 +515,26 @@ function renderJourney() {
 
 function renderStageDetail() {
   const stage = stages[selectedStageIndex];
+  const requirement = stageEvidenceRequirements[selectedStageIndex];
+  const squad = currentSquad();
+  const evidences = currentEvidenceBuckets()[selectedStageIndex];
+  const isCompleted = selectedStageIndex < squad.currentStage;
+  const isFuture = selectedStageIndex > squad.currentStage;
+  const isLastStage = selectedStageIndex === stages.length - 1;
+  const actionLabel = isCompleted
+    ? "Etapa concluída"
+    : isFuture
+      ? "Etapa futura"
+      : isLastStage
+        ? "Concluir jornada"
+        : "Concluir etapa e avançar";
   qs("#stageDetail").innerHTML = `
     <div class="panel-header">
       <div>
         <h3>${selectedStageIndex + 1}. ${stage.title}</h3>
         <p>${stage.explanation}</p>
       </div>
-      <button class="secondary-action" type="button" id="markStage">Marcar avanço</button>
+      <button class="secondary-action" type="button" id="markStage" ${isCompleted || isFuture ? "disabled" : ""}>${actionLabel}</button>
     </div>
     <div class="stage-detail-grid">
       <div>
@@ -271,15 +550,151 @@ function renderStageDetail() {
         <p>${stage.ai}</p>
       </div>
     </div>
+    <div class="evidence-guidance">
+      <article>
+        <h3>Evidências esperadas</h3>
+        <ul class="plain-list">${requirement.expected.map((item) => `<li>${item}</li>`).join("")}</ul>
+      </article>
+      <article>
+        <h3>Critérios de qualidade</h3>
+        <ul class="plain-list">${requirement.quality.map((item) => `<li>${item}</li>`).join("")}</ul>
+      </article>
+    </div>
+    <section class="evidence-section" aria-labelledby="evidenceTitle">
+      <div class="panel-header">
+        <div>
+          <h3 id="evidenceTitle">Documentação e evidências da etapa</h3>
+          <p>Esses registros alimentam automaticamente a maturidade documental no Assessment.</p>
+        </div>
+        <span class="status-pill">${evidences.length} evidência${evidences.length === 1 ? "" : "s"}</span>
+      </div>
+      <div class="evidence-layout">
+        <form class="evidence-form" id="evidenceForm">
+          <label>
+            Tipo
+            <select name="type">
+              <option>Template preenchido</option>
+              <option>Pesquisa com clientes</option>
+              <option>Evidência quantitativa</option>
+              <option>Hipótese documentada</option>
+              <option>Experimento</option>
+              <option>Resultado</option>
+              <option>Decisão</option>
+            </select>
+          </label>
+          <label>
+            Documento ou artefato
+            <input name="title" type="text" value="${escapeHtml(stage.templates[0])}" required>
+          </label>
+          <label>
+            Link ou referência
+            <input name="reference" type="text" placeholder="URL, pasta, Jira, Confluence ou template">
+          </label>
+          <label>
+            Status
+            <select name="status">
+              <option>Rascunho</option>
+              <option>Revisada pela squad</option>
+              <option>Validada com stakeholder</option>
+            </select>
+          </label>
+          <label>
+            Arquivo
+            <input name="file" type="file" accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.csv,.png,.jpg,.jpeg">
+          </label>
+          <label class="evidence-summary-field">
+            Decisão que esta evidência apoia
+            <input name="decision" type="text" placeholder="Ex.: seguir, pivotar, parar, testar nova hipótese">
+          </label>
+          <label class="evidence-summary-field">
+            Aprendizado evidenciado
+            <textarea name="summary" rows="4" placeholder="O que esta evidência prova ou esclarece?" required></textarea>
+          </label>
+          <button class="primary-action" type="submit">Registrar evidência</button>
+        </form>
+        <div class="evidence-list" id="evidenceList">
+          ${renderEvidenceItems(evidences)}
+        </div>
+      </div>
+    </section>
   `;
 
   qs("#markStage").addEventListener("click", () => {
     const nextStage = Math.min(stages.length - 1, selectedStageIndex + 1);
-    squads[activeSquadKey].currentStage = Math.max(squads[activeSquadKey].currentStage, nextStage);
-    showToast(`Jornada atualizada para ${stages[squads[activeSquadKey].currentStage].title}.`);
+    squads[activeSquadKey].currentStage = nextStage;
+    selectedStageIndex = nextStage;
+    const message = isLastStage
+      ? "Jornada concluída. O próximo passo é consolidar a decisão e planejar o MVP."
+      : `Etapa concluída. Agora a squad está em ${stages[nextStage].title}.`;
+    showToast(message);
     renderHome();
     renderJourney();
+    renderAssessmentResult();
   });
+
+  qs("#evidenceForm").addEventListener("submit", (event) => {
+    event.preventDefault();
+    const form = event.currentTarget;
+    const file = form.elements.file.files[0];
+    const evidence = {
+      type: form.elements.type.value,
+      title: form.elements.title.value.trim(),
+      reference: file ? file.name : form.elements.reference.value.trim(),
+      status: form.elements.status.value,
+      decision: form.elements.decision.value.trim(),
+      summary: form.elements.summary.value.trim()
+    };
+
+    currentEvidenceBuckets()[selectedStageIndex].push(evidence);
+    saveEvidenceStore();
+    showToast(`Evidência registrada em ${stage.title}. O Assessment foi atualizado.`);
+    renderHome();
+    renderJourney();
+    renderAssessmentResult();
+  });
+
+  qsa("[data-remove-evidence]", qs("#stageDetail")).forEach((button) => {
+    button.addEventListener("click", () => {
+      currentEvidenceBuckets()[selectedStageIndex].splice(Number(button.dataset.removeEvidence), 1);
+      saveEvidenceStore();
+      showToast(`Evidência removida de ${stage.title}.`);
+      renderHome();
+      renderJourney();
+      renderAssessmentResult();
+    });
+  });
+}
+
+function renderEvidenceItems(evidences) {
+  if (!evidences.length) {
+    return `
+      <article class="empty-state">
+        <strong>Nenhuma evidência registrada</strong>
+        <p>Registre o artefato que comprova o trabalho feito nesta etapa.</p>
+      </article>
+    `;
+  }
+
+  return evidences.map((evidence, index) => {
+    const quality = evidenceQuality(evidence);
+    const qualityClass = quality.label === "Forte" ? "is-strong" : quality.label === "Parcial" ? "is-partial" : "";
+    return `
+      <article class="evidence-item">
+        <div>
+          <div class="evidence-meta">
+            <span class="badge">${escapeHtml(evidence.type)}</span>
+            <span class="quality-pill ${qualityClass}">${quality.label}</span>
+            ${evidence.status ? `<span class="quality-pill">${escapeHtml(evidence.status)}</span>` : ""}
+          </div>
+          <h3>${escapeHtml(evidence.title)}</h3>
+          <p>${escapeHtml(evidence.summary)}</p>
+          ${evidence.decision ? `<small>Decisão apoiada: ${escapeHtml(evidence.decision)}</small>` : ""}
+          ${evidence.reference ? `<small>${escapeHtml(evidence.reference)}</small>` : ""}
+        </div>
+        <button class="secondary-action" type="button" data-remove-evidence="${index}">Remover</button>
+      </article>
+    `;
+  }).join("");
 }
 
 function plannerTechniques(uncertainty, evidence) {
@@ -404,14 +819,17 @@ function generateAssistantAnswer(form) {
 }
 
 function renderAssessmentForm() {
-  qs("#assessmentForm").innerHTML = assessmentCriteria.map(([key, label, helper], index) => `
+  qs("#assessmentForm").innerHTML = `
+    <section class="auto-signal" id="documentEvidenceSignal"></section>
+    ${assessmentCriteria.map(([key, label, helper], index) => `
     <div class="slider-row">
       <label for="${key}">${label}</label>
       <input id="${key}" name="${key}" type="range" min="1" max="5" value="${index === 2 ? 3 : 4}">
       <output for="${key}" id="${key}Output">${index === 2 ? 3 : 4}</output>
       <p>${helper}</p>
     </div>
-  `).join("");
+  `).join("")}
+  `;
 
   qsa("#assessmentForm input").forEach((input) => {
     input.addEventListener("input", () => {
@@ -419,16 +837,44 @@ function renderAssessmentForm() {
       renderAssessmentResult();
     });
   });
+
+  renderDocumentationSignal();
+}
+
+function renderDocumentationSignal() {
+  const signal = qs("#documentEvidenceSignal");
+  if (!signal) return;
+
+  const stats = documentationStats();
+  signal.innerHTML = `
+    <span class="badge">Sinal automático</span>
+    <h3>Documentação evidenciada</h3>
+    <strong>${stats.score}/5</strong>
+    <p>${stats.documentedStages}/${stages.length} etapas têm registro e ${stats.completeStages}/${stages.length} têm evidência forte. Total: ${stats.evidenceCount} evidência${stats.evidenceCount === 1 ? "" : "s"}.</p>
+    <div class="mini-progress"><span style="width: ${stats.coverage}%"></span></div>
+  `;
 }
 
 function renderAssessmentResult() {
-  const values = qsa("#assessmentForm input").map((input) => Number(input.value));
-  const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+  renderDocumentationSignal();
+
+  const manualValues = qsa("#assessmentForm input[type='range']").map((input) => Number(input.value));
+  const docStats = documentationStats();
+  const combined = [
+    ...manualValues.map((value, index) => ({ value, label: assessmentCriteria[index][1] })),
+    { value: docStats.score, label: "Documentação evidenciada" }
+  ];
+  const average = combined.reduce((sum, item) => sum + item.value, 0) / combined.length;
   const levelIndex = Math.min(4, Math.max(0, Math.round(average) - 1));
-  const weakest = values
-    .map((value, index) => ({ value, label: assessmentCriteria[index][1] }))
+  const weakest = combined
     .sort((a, b) => a.value - b.value)
     .slice(0, 2);
+  const missingText = docStats.missingStages.length
+    ? docStats.missingStages.slice(0, 3).join(", ")
+    : "Todas as etapas possuem evidência registrada.";
+  const partialText = docStats.partialStages.length
+    ? `Evidências parciais para fortalecer: ${docStats.partialStages.slice(0, 3).join(", ")}.`
+    : "As etapas documentadas ja possuem qualidade suficiente para o sinal automatico.";
 
   qs("#assessmentResult").innerHTML = `
     <div class="panel-header">
@@ -440,6 +886,13 @@ function renderAssessmentResult() {
     </div>
     <div class="maturity-scale">
       ${maturityLevels.map((level, index) => `<span class="maturity-step ${index === levelIndex ? "is-active" : ""}">${level}</span>`).join("")}
+    </div>
+    <div class="documentation-summary">
+      <h3>Sinal vindo da Jornada Guiada</h3>
+      <p>Maturidade documental ${docStats.score}/5, calculada por cobertura e qualidade das evidências nas etapas da jornada.</p>
+      <div class="mini-progress"><span style="width: ${docStats.coverage}%"></span></div>
+      <small>Etapas sem evidência: ${missingText}</small>
+      <small>${partialText}</small>
     </div>
     <h3>Gaps prioritários</h3>
     <ul class="plain-list">${weakest.map((item) => `<li>${item.label}</li>`).join("")}</ul>
