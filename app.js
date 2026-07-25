@@ -394,6 +394,21 @@ function setView(viewName) {
   if (viewName === "library") renderLibrary();
 }
 
+function openGuide() {
+  qs("#guideModal").hidden = false;
+}
+
+function closeGuide() {
+  qs("#guideModal").hidden = true;
+  if (typeof localStorage !== "undefined") {
+    localStorage.setItem("discoveryHubGuideSeen", "true");
+  }
+}
+
+function shouldShowGuideOnStart() {
+  return typeof localStorage === "undefined" || localStorage.getItem("discoveryHubGuideSeen") !== "true";
+}
+
 function showToast(message) {
   const toast = qs("#toast");
   toast.textContent = message;
@@ -1058,6 +1073,17 @@ function renderTrendChart() {
 function bindEvents() {
   qsa(".nav-item").forEach((item) => item.addEventListener("click", () => setView(item.dataset.view)));
   qsa("[data-jump]").forEach((button) => button.addEventListener("click", () => setView(button.dataset.jump)));
+  qs("#openGuide").addEventListener("click", openGuide);
+  qs("#closeGuide").addEventListener("click", closeGuide);
+  qs("#guideModal").addEventListener("click", (event) => {
+    if (event.target.id === "guideModal") closeGuide();
+  });
+  qsa("[data-guide-jump]").forEach((button) => {
+    button.addEventListener("click", () => {
+      closeGuide();
+      setView(button.dataset.guideJump);
+    });
+  });
 
   qs("#squadSelect").addEventListener("change", (event) => {
     activeSquadKey = event.target.value;
@@ -1122,6 +1148,7 @@ function init() {
   renderLibrary();
   renderCommunity();
   renderExecutive();
+  if (shouldShowGuideOnStart()) openGuide();
 }
 
 init();
