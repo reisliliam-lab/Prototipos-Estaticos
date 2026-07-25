@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery Hub Itaú</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="Navegação principal">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">DH</div>
+        <div>
+          <strong>Discovery Hub</strong>
+          <span>Itaú</span>
+        </div>
+      </div>
+
+      <nav class="nav-list" aria-label="Módulos">
+        <button class="nav-item is-active" type="button" data-view="home">
+          <span aria-hidden="true">01</span>
+          Home
+        </button>
+        <button class="nav-item" type="button" data-view="journey">
+          <span aria-hidden="true">02</span>
+          Discovery Guiado
+        </button>
+        <button class="nav-item" type="button" data-view="planner">
+          <span aria-hidden="true">03</span>
+          Planejar Discovery
+        </button>
+        <button class="nav-item" type="button" data-view="library">
+          <span aria-hidden="true">04</span>
+          Biblioteca
+        </button>
+        <button class="nav-item" type="button" data-view="assistant">
+          <span aria-hidden="true">05</span>
+          IA Discovery
+        </button>
+        <button class="nav-item" type="button" data-view="assessment">
+          <span aria-hidden="true">06</span>
+          Assessment
+        </button>
+        <button class="nav-item" type="button" data-view="community">
+          <span aria-hidden="true">07</span>
+          Comunidade
+        </button>
+        <button class="nav-item" type="button" data-view="executive">
+          <span aria-hidden="true">08</span>
+          Executivo
+        </button>
+      </nav>
+
+      <div class="squad-picker">
+        <label for="squadSelect">Squad</label>
+        <select id="squadSelect">
+          <option value="cartoes">Cartões PJ</option>
+          <option value="credito">Crédito PF</option>
+          <option value="investimentos">Investimentos</option>
+        </select>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <p class="eyebrow">Product Discovery Operating System</p>
+          <h1 id="viewTitle">Home</h1>
+        </div>
+        <div class="topbar-actions">
+          <label class="search-field" for="globalSearch">
+            <span class="sr-only">Buscar</span>
+            <input id="globalSearch" type="search" placeholder="Buscar guias, templates e casos">
+          </label>
+          <button class="primary-action" type="button" data-jump="assistant">Abrir IA</button>
+        </div>
+      </header>
+      <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+      <section class="view is-active" id="home" aria-labelledby="homeTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="homeTitle">Painel da squad</h2>
+            <p>Dados demonstrativos para acompanhamento de adoção, maturidade e próximos passos.</p>
+          </div>
+          <button class="secondary-action" type="button" data-jump="planner">Novo plano</button>
+        </div>
+
+        <div class="metric-grid" id="homeMetrics"></div>
+
+        <div class="dashboard-layout">
+          <section class="work-panel" aria-labelledby="progressTitle">
+            <div class="panel-header">
+              <div>
+                <h3 id="progressTitle">Discovery em andamento</h3>
+                <p id="progressSubtitle"></p>
+              </div>
+              <span class="status-pill" id="maturityPill"></span>
+            </div>
+            <div class="progress-track" aria-label="Progresso da jornada">
+              <span id="progressBar"></span>
+            </div>
+            <ol class="compact-stage-list" id="compactStageList"></ol>
+          </section>
+
+          <section class="work-panel" aria-labelledby="recommendationTitle">
+            <div class="panel-header">
+              <div>
+                <h3 id="recommendationTitle">Recomendações</h3>
+                <p>Priorizadas a partir do estágio, maturidade e gaps da squad.</p>
+              </div>
+            </div>
+            <div class="recommendation-list" id="recommendationList"></div>
+          </section>
+        </div>
+      </section>
+
+      <section class="view" id="journey" aria-labelledby="journeyTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="journeyTitle">Jornada guiada de Discovery</h2>
+            <p>Fluxo padrão com critérios mínimos, templates e apoio contextual.</p>
+          </div>
+          <button class="secondary-action" type="button" data-jump="assistant">Revisar com IA</button>
+        </div>
+
+        <div class="journey-grid" id="journeyGrid"></div>
+        <section class="detail-panel" aria-live="polite" id="stageDetail"></section>
+      </section>
+
+      <section class="view" id="planner" aria-labelledby="plannerTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="plannerTitle">Planejador de Discovery</h2>
+            <p>Gera um plano inicial com técnicas, agenda, stakeholders e entregáveis.</p>
+          </div>
+        </div>
+
+        <div class="planner-layout">
+          <form class="tool-panel" id="plannerForm">
+            <label>
+              Iniciativa
+              <input name="initiative" type="text" value="Reduzir abandono no onboarding PJ" required>
+            </label>
+            <label>
+              Tipo de incerteza
+              <select name="uncertainty">
+                <option value="problem">Problema pouco claro</option>
+                <option value="customer">Cliente pouco conhecido</option>
+                <option value="solution">Solução incerta</option>
+                <option value="value">Valor ou impacto incerto</option>
+              </select>
+            </label>
+            <label>
+              Evidência atual
+              <select name="evidence">
+                <option value="low">Baixa</option>
+                <option value="medium">Média</option>
+                <option value="high">Alta</option>
+              </select>
+            </label>
+            <label>
+              Janela de decisão
+              <select name="timeline">
+                <option value="2">2 semanas</option>
+                <option value="4" selected>4 semanas</option>
+                <option value="6">6 semanas</option>
+              </select>
+            </label>
+            <label>
+              Áreas envolvidas
+              <input name="stakeholders" type="text" value="Produto, UX Research, Dados, Risco, Atendimento">
+            </label>
+            <button class="primary-action" type="submit">Gerar plano</button>
+          </form>
+
+          <section class="detail-panel" id="planOutput" aria-live="polite"></section>
+        </div>
+      </section>
+
+      <section class="view" id="library" aria-labelledby="libraryTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="libraryTitle">Central de conhecimento</h2>
+            <p>Guias, templates, vídeos, playbooks, casos internos e ferramentas.</p>
+          </div>
+          <div class="filter-group" role="group" aria-label="Filtros da biblioteca">
+            <button class="filter-button is-active" type="button" data-filter="all">Todos</button>
+            <button class="filter-button" type="button" data-filter="Guia">Guias</button>
+            <button class="filter-button" type="button" data-filter="Template">Templates</button>
+            <button class="filter-button" type="button" data-filter="Caso">Casos</button>
+            <button class="filter-button" type="button" data-filter="Playbook">Playbooks</button>
+          </div>
+        </div>
+        <div class="library-grid" id="libraryGrid"></div>
+      </section>
+
+      <section class="view" id="assistant" aria-labelledby="assistantTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="assistantTitle">IA Discovery</h2>
+            <p>Copiloto demonstrativo para perguntas, hipóteses, entrevistas e experimentos.</p>
+          </div>
+        </div>
+
+        <div class="assistant-layout">
+          <form class="tool-panel" id="assistantForm">
+            <label>
+              Especialista
+              <select name="agent">
+                <option>Discovery Coach</option>
+                <option>UX Research Advisor</option>
+                <option>Product Manager Advisor</option>
+                <option>Experiment Designer</option>
+                <option>JTBD Specialist</option>
+                <option>Discovery Reviewer</option>
+              </select>
+            </label>
+            <label>
+              Pergunta
+              <textarea name="question" rows="7">Meu problema está bem escrito? Clientes PJ abandonam o cadastro antes de finalizar a etapa de validação documental.</textarea>
+            </label>
+            <button class="primary-action" type="submit">Analisar</button>
+          </form>
+          <section class="detail-panel assistant-answer" id="assistantAnswer" aria-live="polite"></section>
+        </div>
+      </section>
+
+      <section class="view" id="assessment" aria-labelledby="assessmentTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="assessmentTitle">Assessment de maturidade</h2>
+            <p>Modelo periódico para medir autonomia, evidências, cadência e governança.</p>
+          </div>
+        </div>
+
+        <div class="assessment-layout">
+          <form class="tool-panel" id="assessmentForm"></form>
+          <section class="detail-panel" id="assessmentResult" aria-live="polite"></section>
+        </div>
+      </section>
+
+      <section class="view" id="community" aria-labelledby="communityTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="communityTitle">Comunidade e mentorias</h2>
+            <p>Plantões, workshops, fórum executivo e solicitações a especialistas.</p>
+          </div>
+        </div>
+
+        <div class="community-layout">
+          <section class="work-panel" aria-labelledby="eventsTitle">
+            <div class="panel-header">
+              <div>
+                <h3 id="eventsTitle">Agenda</h3>
+                <p>Todos os encontros podem gerar gravações e materiais na biblioteca.</p>
+              </div>
+            </div>
+            <div class="event-list" id="eventList"></div>
+          </section>
+
+          <form class="tool-panel" id="mentoringForm">
+            <h3>Solicitar mentoria</h3>
+            <label>
+              Tema
+              <select name="topic">
+                <option>Definição de problema</option>
+                <option>Plano de pesquisa</option>
+                <option>Hipóteses e experimentos</option>
+                <option>Opportunity Solution Tree</option>
+              </select>
+            </label>
+            <label>
+              Urgência
+              <select name="urgency">
+                <option>Esta semana</option>
+                <option>Próximas duas semanas</option>
+                <option>Sem urgência</option>
+              </select>
+            </label>
+            <label>
+              Contexto
+              <textarea name="context" rows="5">Precisamos validar se o abandono é causado por esforço documental, falta de clareza ou baixa percepção de valor.</textarea>
+            </label>
+            <button class="primary-action" type="submit">Enviar triagem</button>
+            <p class="form-result" id="mentoringResult" aria-live="polite"></p>
+          </form>
+        </div>
+      </section>
+
+      <section class="view" id="executive" aria-labelledby="executiveTitle">
+        <div class="view-heading">
+          <div>
+            <h2 id="executiveTitle">Dashboard executivo</h2>
+            <p>Adoção, capacidade, eficiência e impacto da prática de Discovery.</p>
+          </div>
+          <button class="secondary-action" type="button" data-jump="assessment">Ver maturidade</button>
+        </div>
+
+        <div class="metric-grid" id="executiveMetrics"></div>
+        <div class="executive-layout">
+          <section class="work-panel" aria-labelledby="adoptionTitle">
+            <div class="panel-header">
+              <div>
+                <h3 id="adoptionTitle">Adoção por comunidade</h3>
+                <p>Uso de jornadas, templates e conteúdos.</p>
+              </div>
+            </div>
+            <div class="bar-chart" id="adoptionChart" role="img" aria-label="Adoção por comunidade"></div>
+          </section>
+          <section class="work-panel" aria-labelledby="impactTitle">
+            <div class="panel-header">
+              <div>
+                <h3 id="impactTitle">Evolução trimestral</h3>
+                <p>Hipóteses validadas e iniciativas evitadas antes do delivery.</p>
+              </div>
+            </div>
+            <svg class="trend-chart" id="trendChart" role="img" aria-labelledby="trendTitle trendDesc" viewBox="0 0 640 300">
+              <title id="trendTitle">Evolução trimestral de impacto</title>
+              <desc id="trendDesc">Gráfico de linhas com hipóteses validadas e iniciativas canceladas antes de desenvolvimento.</desc>
+            </svg>
+          </section>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
