@@ -158,6 +158,23 @@ function createEvidenceBuckets(entries = {}) {
   return stages.map((_, index) => entries[index] ? [...entries[index]] : []);
 }
 
+function getStoredValue(key) {
+  try {
+    return window.localStorage?.getItem(key) || null;
+  } catch {
+    return null;
+  }
+}
+
+function setStoredValue(key, value) {
+  try {
+    window.localStorage?.setItem(key, value);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 function defaultEvidenceStore() {
   return {
     cartoes: createEvidenceBuckets({
@@ -261,10 +278,9 @@ function defaultEvidenceStore() {
 
 function loadEvidenceStore() {
   const fallback = defaultEvidenceStore();
-  if (typeof localStorage === "undefined") return fallback;
 
   try {
-    const stored = JSON.parse(localStorage.getItem("discoveryHubEvidence") || "null");
+    const stored = JSON.parse(getStoredValue("discoveryHubEvidence") || "null");
     if (!stored) return fallback;
 
     Object.keys(fallback).forEach((squadKey) => {
@@ -400,13 +416,11 @@ function openGuide() {
 
 function closeGuide() {
   qs("#guideModal").hidden = true;
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem("discoveryHubGuideSeen", "true");
-  }
+  setStoredValue("discoveryHubGuideSeen", "true");
 }
 
 function shouldShowGuideOnStart() {
-  return typeof localStorage === "undefined" || localStorage.getItem("discoveryHubGuideSeen") !== "true";
+  return getStoredValue("discoveryHubGuideSeen") !== "true";
 }
 
 function showToast(message) {
@@ -426,9 +440,7 @@ function currentEvidenceBuckets() {
 }
 
 function saveEvidenceStore() {
-  if (typeof localStorage !== "undefined") {
-    localStorage.setItem("discoveryHubEvidence", JSON.stringify(evidenceStore));
-  }
+  return setStoredValue("discoveryHubEvidence", JSON.stringify(evidenceStore));
 }
 
 function evidenceQuality(evidence) {
@@ -709,8 +721,10 @@ function renderStageDetail() {
     };
 
     currentEvidenceBuckets()[selectedStageIndex].push(evidence);
-    saveEvidenceStore();
-    showToast(`Evidência registrada em ${stage.title}. O Assessment foi atualizado.`);
+    const persisted = saveEvidenceStore();
+    showToast(persisted
+      ? `Evidência registrada em ${stage.title}. O Assessment foi atualizado.`
+      : `Evidência registrada nesta sessão. O navegador não permitiu salvar localmente.`);
     renderHome();
     renderJourney();
     renderAssessmentResult();
@@ -719,8 +733,10 @@ function renderStageDetail() {
   qsa("[data-remove-evidence]", qs("#stageDetail")).forEach((button) => {
     button.addEventListener("click", () => {
       currentEvidenceBuckets()[selectedStageIndex].splice(Number(button.dataset.removeEvidence), 1);
-      saveEvidenceStore();
-      showToast(`Evidência removida de ${stage.title}.`);
+      const persisted = saveEvidenceStore();
+      showToast(persisted
+        ? `Evidência removida de ${stage.title}.`
+        : `Evidência removida nesta sessão. O navegador não permitiu salvar localmente.`);
       renderHome();
       renderJourney();
       renderAssessmentResult();
@@ -730,6 +746,10 @@ function renderStageDetail() {
   qsa("[data-download-evidence]", qs("#stageDetail")).forEach((button) => {
     button.addEventListener("click", () => {
       const evidence = currentEvidenceBuckets()[selectedStageIndex][Number(button.dataset.downloadEvidence)];
+      if (!evidence) {
+        showToast("Essa evidência não está mais disponível para download.");
+        return;
+      }
       const blob = new Blob([evidenceRecordText(evidence, stage.title)], { type: "text/plain;charset=utf-8" });
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
